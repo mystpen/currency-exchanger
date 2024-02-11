@@ -1,5 +1,6 @@
 package com.example.currencyexchanger.controller;
 
+import com.example.currencyexchanger.model.CurrencyResponse;
 import com.example.currencyexchanger.model.ExchangeRateResponse;
 import com.example.currencyexchanger.service.CurrencyService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,20 +27,27 @@ public class Controller {
     }
 
     @GetMapping("/exchange-rate")
-    public ExchangeRateResponse getExchangeRate(@RequestParam String baseCurrency, @RequestParam String targetCurrency) {
-        double rate = currencyService.getExchangeRate(baseCurrency, targetCurrency);
+    public ResponseEntity<Object> getExchangeRate(@RequestParam String base,
+                                                @RequestParam String target) {
+        double rate = currencyService.getExchangeRate(base, target);
         ExchangeRateResponse response = new ExchangeRateResponse();
-        response.setBaseCurrency(baseCurrency);
-        response.setTargetCurrency(targetCurrency);
+        response.setBaseCurrency(base);
+        response.setTargetCurrency(target);
         response.setExchangeRate(rate);
-        return response;
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/currency-convert")
-    public ResponseEntity<Object> getCurrency(){
-        Map<String, String> data = new HashMap<>();
-        data.put("key1", "value1");
-        data.put("key2", "value2");
-        return new ResponseEntity<>(data, HttpStatus.OK);
+    public ResponseEntity<Object> getCurrency(@RequestParam String base,
+                                              @RequestParam String target,
+                                              @RequestParam double amount) {
+        double rate = currencyService.getExchangeRate(base, target);
+
+        CurrencyResponse response = new CurrencyResponse();
+        response.setBaseCurrency(base);
+        response.setBaseAmount(amount);
+        response.setTargetCurrency(target);
+        response.setTargetAmount(rate*amount);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
